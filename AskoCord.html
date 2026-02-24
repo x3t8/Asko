@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Asko Cord</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #1a1b1e; color: #dcddde; height: 100vh; display: flex; overflow: hidden; }
+    #sidebar { width: 270px; min-width: 270px; background: #111214; border-right: 1px solid #2b2d31; display: flex; flex-direction: column; overflow-y: auto; padding: 16px 12px; gap: 4px; flex-shrink: 0; }
+    .sidebar-title { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .sidebar-sub { font-size: 12px; color: #72767d; margin-bottom: 16px; }
+    .section-label { font-size: 11px; font-weight: 600; color: #8e9297; text-transform: uppercase; letter-spacing: 0.05em; margin: 12px 0 6px; }
+    input[type=text], textarea, select { background: #2b2d31; border: 1px solid #3a3c41; border-radius: 6px; color: #dcddde; font-family: 'Inter', sans-serif; font-size: 13px; padding: 8px 10px; outline: none; transition: border-color 0.15s; width: 100%; margin-bottom: 5px; }
+    input[type=text]:focus, textarea:focus, select:focus { border-color: #5865f2; }
+    select option { background: #2b2d31; }
+    .btn { background: #3a3c41; border: none; border-radius: 6px; color: #dcddde; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; padding: 8px 12px; transition: background 0.15s; width: 100%; margin-bottom: 5px; text-align: left; }
+    .btn:hover { background: #44474e; }
+    .btn-primary { background: #5865f2; color: #fff; }
+    .btn-primary:hover { background: #4752c4; }
+    .btn-danger { color: #ed4245; }
+    .btn-danger:hover { background: #2d1a1b; color: #ed4245; }
+    .btn-sm { width: auto; padding: 5px 10px; font-size: 12px; margin-bottom: 0; }
+    .principal-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+    .principal-row select { margin-bottom: 0; flex: 1; }
+    .principal-badge { background: #5865f2; color: #fff; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: 600; }
+    #senderCount { font-size: 11px; color: #72767d; margin-bottom: 5px; }
+    #senderTokens { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; max-height: 120px; overflow-y: auto; }
+    .token-row { display: flex; align-items: center; gap: 8px; background: #2b2d31; border: 1px solid #3a3c41; border-radius: 6px; padding: 6px 10px; font-size: 12px; font-family: monospace; }
+    .token-row span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #b5bac1; }
+    .token-row button { background: none; border: none; color: #72767d; cursor: pointer; font-size: 15px; padding: 0; line-height: 1; flex-shrink: 0; }
+    .token-row button:hover { color: #ed4245; }
+    .nav-list { display: flex; flex-direction: column; gap: 1px; }
+    .nav-item { font-size: 13px; color: #8e9297; padding: 6px 8px; border-radius: 4px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nav-item:hover { background: #2b2d31; color: #dcddde; }
+    .nav-item.active { background: #404249; color: #fff; }
+    #tinyFileSection { background: #1e2124; border: 1px solid #3a3c41; border-radius: 6px; padding: 8px 10px; font-size: 12px; color: #b5bac1; margin-bottom: 2px; }
+    .tiny-file-row { display: flex; align-items: center; gap: 6px; }
+    .tiny-file-row span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #8e9297; font-size: 11px; }
+    .beefer-file-btn { background: #3a3c41; border: none; border-radius: 4px; color: #dcddde; cursor: pointer; font-size: 11px; padding: 3px 8px; white-space: nowrap; }
+    .beefer-file-btn:hover { background: #44474e; }
+    #autoBeeferSection { background: #1e2124; border: 1px solid #3a3c41; border-radius: 6px; padding: 10px; margin-top: 4px; }
+    .beefer-token-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; padding: 8px; background: #2b2d31; border-radius: 6px; border: 1px solid #3a3c41; font-size: 12px; }
+    .beefer-token-label { color: #8e9297; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .beefer-token-file { display: flex; align-items: center; gap: 6px; }
+    .beefer-token-file span { flex: 1; color: #b5bac1; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .beefer-status { font-size: 11px; color: #5865f2; min-height: 14px; margin-top: 4px; }
+    .beefer-controls { display: flex; gap: 6px; margin-top: 6px; }
+    .beefer-controls .btn { flex: 1; margin-bottom: 0; text-align: center; }
+    .check-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #b5bac1; cursor: pointer; }
+    .check-row input[type=checkbox] { width: 16px; height: 16px; accent-color: #5865f2; cursor: pointer; }
+    #mainContainer { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+    #chatHeader { background: #111214; border-bottom: 1px solid #2b2d31; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    #chatTitle { font-size: 15px; font-weight: 600; color: #fff; }
+    #chatHeader .header-right { display: flex; align-items: center; gap: 8px; }
+    .header-badge { font-size: 12px; color: #72767d; }
+    #chat { flex: 1; overflow-y: auto; background: #1a1b1e; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+    #chat:empty::after { content: 'Aucune conversation sélectionnée'; color: #4e5058; font-size: 13px; text-align: center; margin: auto; }
+    .message { font-size: 13px; line-height: 1.5; padding: 4px 8px; border-radius: 4px; }
+    .message:hover { background: #2b2d31; }
+    .msg-author { font-weight: 600; color: #fff; margin-right: 6px; }
+    .msg-you .msg-author { color: #5865f2; }
+    #inputBox { background: #111214; border-top: 1px solid #2b2d31; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+    #correctionPanel { background: #2b2d31; border: 1px solid #3a3c41; border-radius: 6px; padding: 10px; display: none; }
+    #correctionRules { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 8px; }
+    #correctionRules th { text-align: left; color: #8e9297; font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.04em; padding: 4px 6px; }
+    #correctionRules td { padding: 4px 6px; color: #b5bac1; }
+    #correctionRules tr:nth-child(even) td { background: #32353b; }
+    .rule-add-row { display: flex; gap: 6px; }
+    .rule-add-row input { margin-bottom: 0; }
+    #reactionSettings input { margin-bottom: 0; }
+    #floodControls { background: #2b2d31; border: 1px solid #3a3c41; border-radius: 6px; padding: 10px 12px; display: none; }
+    .slider-label { display: flex; justify-content: space-between; font-size: 12px; color: #8e9297; margin-bottom: 6px; }
+    .slider-label strong { color: #dcddde; }
+    input[type=range] { width: 100%; height: 4px; background: #3a3c41; border-radius: 99px; appearance: none; outline: none; cursor: pointer; border: none; padding: 0; margin-bottom: 0; }
+    input[type=range]::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #5865f2; cursor: pointer; }
+    #message { resize: none; height: 70px; margin-bottom: 0; }
+    #prefixMessage { resize: none; height: 50px; }
+    .input-row { display: flex; gap: 6px; align-items: center; }
+    .input-row input { margin-bottom: 0; }
+    .input-row .btn { margin-bottom: 0; width: auto; }
+    .msg-actions { display: flex; gap: 6px; }
+    .msg-actions .btn { flex: 1; margin-bottom: 0; }
+    #settingsBtn { position: fixed; bottom: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%; background: #2b2d31; border: 1px solid #3a3c41; color: #b5bac1; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 1000; transition: all 0.2s; }
+    #settingsBtn:hover { background: #3a3c41; transform: rotate(60deg); }
+    #settingsModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; align-items: center; justify-content: center; }
+    #settingsContent { background: #2b2d31; border: 1px solid #3a3c41; border-radius: 8px; padding: 24px; width: 380px; max-height: 80vh; overflow-y: auto; }
+    #settingsContent h2 { font-size: 16px; color: #fff; margin-bottom: 16px; }
+    .setting-item { margin-bottom: 14px; }
+    .setting-item label { display: block; font-size: 12px; color: #8e9297; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+    .setting-item input[type=color] { width: 100%; height: 36px; cursor: pointer; border-radius: 6px; padding: 2px; border: 1px solid #3a3c41; background: #1a1b1e; }
+    .modal-btns { display: flex; gap: 8px; margin-top: 16px; }
+    .modal-btns .btn { flex: 1; margin-bottom: 0; text-align: center; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #3a3c41; border-radius: 99px; }
+    #registerOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+    #registerBox { background: #2b2d31; border: 1px solid #3a3c41; border-radius: 12px; padding: 32px 28px; width: 360px; max-width: calc(100vw - 40px); display: flex; flex-direction: column; gap: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+    #registerBox h2 { font-size: 18px; font-weight: 700; color: #fff; text-align: center; margin-bottom: 4px; }
+    #registerBox p { font-size: 13px; color: #8e9297; text-align: center; }
+    #registerBox label { font-size: 11px; color: #8e9297; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 2px; display: block; }
+    #registerBox .field { display: flex; flex-direction: column; gap: 4px; }
+    #registerBox input[type=email], #registerBox input[type=text] { background: #1e2124; border: 1px solid #3a3c41; border-radius: 6px; color: #dcddde; font-family: 'Inter', sans-serif; font-size: 13px; padding: 10px 12px; outline: none; width: 100%; margin-bottom: 0; transition: border-color 0.15s; }
+    #registerBox input:focus { border-color: #5865f2; }
+    #registerBtn { background: #5865f2; color: #fff; border: none; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; padding: 12px; cursor: pointer; transition: background 0.15s; width: 100%; margin-top: 4px; }
+    #registerBtn:hover { background: #4752c4; }
+    #registerBtn:disabled { background: #3a3c41; color: #72767d; cursor: not-allowed; }
+    #registerError { font-size: 12px; color: #ed4245; text-align: center; min-height: 16px; }
+    #hamburger { display: none; position: fixed; top: 12px; left: 12px; z-index: 1100; background: #2b2d31; border: 1px solid #3a3c41; border-radius: 6px; color: #dcddde; font-size: 18px; width: 36px; height: 36px; align-items: center; justify-content: center; cursor: pointer; }
+    #sidebarOverlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 900; }
+    @media (max-width: 768px) {
+      #hamburger { display: flex; }
+      #sidebar { position: fixed; left: -290px; top: 0; bottom: 0; z-index: 1000; width: 270px; min-width: 270px; transition: left 0.25s ease; overflow-y: auto; }
+      #sidebar.open { left: 0; }
+      #sidebarOverlay.open { display: block; }
+      #chatHeader { padding-left: 56px; }
+      #inputBox { padding: 6px 8px; gap: 5px; }
+      #message { height: 52px; }
+      #prefixMessage { height: 36px; }
+      #settingsBtn { bottom: 12px; right: 12px; width: 38px; height: 38px; font-size: 16px; }
+      #settingsContent { width: calc(100vw - 40px); max-width: 380px; }
+      #correctionPanel { padding: 8px 6px; }
+      #correctionRules { display: block; overflow-x: auto; font-size: 11px; }
+      .rule-add-row { flex-wrap: wrap; gap: 4px; }
+      .rule-add-row input { min-width: 0; flex: 1; }
+      .rule-add-row .btn { width: auto; }
+      .input-row { flex-wrap: wrap; gap: 4px; }
+      .input-row .check-row { font-size: 12px; }
+      .msg-actions .btn { font-size: 12px; padding: 7px 8px; }
+      #floodControls { padding: 8px; }
+      .header-right { gap: 4px; }
+      .header-right .btn-sm { font-size: 11px; padding: 4px 7px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Modal d'inscription -->
+  <div id="registerOverlay">
+    <div id="registerBox">
+      <h2>🔐 Asko Cord</h2>
+      <p>Veuillez renseigner votre adresse email et nom d'utilisateur.</p>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="regEmail" placeholder="exemple@email.com" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label>Nom d'utilisateur</label>
+        <input type="text" id="regUsername" placeholder="Votre pseudo" autocomplete="off" />
+      </div>
+      <div id="registerError"></div>
+      <button id="registerBtn" onclick="submitRegister()">Accéder à Asko Cord</button>
+    </div>
+  </div>
+  <script>
+    // Cacher le modal immédiatement si déjà inscrit
+    if (localStorage.getItem('askocord_registered') === '1') {
+      document.getElementById('registerOverlay').style.display = 'none';
+    }
+  </script>
+  <button id="hamburger" title="Menu">☰</button>
+  <div id="sidebarOverlay"></div>
+  <aside id="sidebar">
+    <div class="sidebar-title">Asko Cord</div>
+    <div class="sidebar-sub">by Okooz &amp; Askar</div>
+
+    <div class="section-label">Token principal <span class="principal-badge">NAV</span></div>
+    <div class="principal-row">
+      <select id="tokenList" title="Token principal"></select>
+      <button class="btn btn-sm btn-danger" id="deletePrincipalBtn" title="Supprimer">✕</button>
+    </div>
+    <input id="tokenName" type="text" placeholder="Nom du compte" autocomplete="off" />
+    <input id="tokenInput" type="text" placeholder="Token Discord principal" autocomplete="off" />
+    <button class="btn btn-primary" id="addTokenBtn">Enregistrer principal</button>
+    <button class="btn" onclick="connect()">Se connecter</button>
+    <button class="btn" onclick="loadGuilds()">Serveurs</button>
+    <button class="btn" onclick="loadDMs()">DMs &amp; Groupes</button>
+
+    <div class="section-label">Tiny — Fichier messages</div>
+    <div id="tinyFileSection">
+      <div class="tiny-file-row">
+        <span id="tinyFileName">tiny.txt (60 lignes) ✓</span>
+        <button class="beefer-file-btn" onclick="document.getElementById('tinyFileInput').click()">📂 Changer</button>
+        <input type="file" id="tinyFileInput" accept=".txt" style="display:none" onchange="loadTinyFile(this)" />
+      </div>
+    </div>
+    <button class="btn" onclick="send_Tiny_Mode()">⚡ Activer le Tiny</button>
+
+    <div class="section-label">Auto Beefer</div>
+    <div id="autoBeeferSection">
+      <label class="check-row" style="font-size:12px;margin-bottom:8px;">
+        <input type="checkbox" id="autoBeeferCheckbox" onchange="toggleAutoBeefer()" />
+        Activer l'Auto Beefer
+      </label>
+      <div id="beeferTokenList" style="display:none;"></div>
+      <div id="beeferStatus" class="beefer-status"></div>
+      <div class="beefer-controls">
+        <button class="btn btn-sm btn-primary" id="startBeeferBtn" onclick="startBeefer()" style="display:none;">▶ Démarrer</button>
+        <button class="btn btn-sm btn-danger" id="stopBeeferBtn" onclick="stopBeefer()" style="display:none;">■ Arrêter</button>
+      </div>
+    </div>
+
+    <div class="section-label">Tokens d'envoi</div>
+    <div id="senderCount">0 token(s) supplémentaire(s)</div>
+    <div id="senderTokens"></div>
+    <input id="senderName" type="text" placeholder="Nom (optionnel)" autocomplete="off" />
+    <input id="senderTokenInput" type="text" placeholder="Token d'envoi..." autocomplete="off" />
+    <div style="display:flex;gap:6px;">
+      <button class="btn" id="addSenderBtn" style="flex:1;">+ Ajouter token</button>
+      <button class="btn btn-sm" onclick="document.getElementById('senderTxtInput').click()" title="Importer .txt (un token par ligne)" style="white-space:nowrap;">📂 .txt</button>
+      <input type="file" id="senderTxtInput" accept=".txt" style="display:none" onchange="loadSenderTxtFile(this)" />
+    </div>
+
+    <div class="section-label">Serveurs</div>
+    <div class="nav-list" id="guildList"></div>
+
+    <div class="section-label">DMs &amp; Groupes</div>
+    <div class="nav-list" id="dmList"></div>
+
+    <div class="section-label">Salons</div>
+    <div class="nav-list" id="channelList"></div>
+  </aside>
+
+  <main id="mainContainer">
+    <header id="chatHeader">
+      <span id="chatTitle">Aucune conversation</span>
+      <div class="header-right">
+        <button class="btn btn-sm" id="toggleCorrectionPanel">Corrections</button>
+        <span class="header-badge">@Asko</span>
+      </div>
+    </header>
+    <section id="chat"></section>
+    <footer id="inputBox">
+      <div id="correctionPanel">
+        <table id="correctionRules">
+          <thead><tr><th>Faute</th><th>Correction</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="rule-add-row">
+          <input id="newWord" type="text" placeholder="Faute" autocomplete="off" />
+          <input id="newCorrection" type="text" placeholder="Correction" autocomplete="off" />
+          <button class="btn btn-sm btn-primary" id="addRuleBtn">Add</button>
+        </div>
+      </div>
+      <div class="input-row">
+        <button class="btn btn-sm" id="autoCorrectBtn">Auto correct</button>
+        <label class="check-row" style="flex:1;">
+          <input type="checkbox" id="autoReactCheckbox" />
+          Réagir auto à mes messages
+        </label>
+      </div>
+      <div id="reactionSettings" style="display:none;">
+        <input id="reactionEmoji" type="text" placeholder="Emoji (ex: 👍, ❤️)" autocomplete="off" />
+      </div>
+      <div id="floodControls">
+        <div class="slider-label">Vitesse <strong><span id="delayValue">50</span> ms</strong></div>
+        <input type="range" id="delayRange" min="0" max="500" value="50" oninput="document.getElementById('delayValue').textContent=this.value;updateDelay();" />
+      </div>
+      <textarea id="prefixMessage" placeholder="Texte avant le message (ex: A)" autocomplete="off"></textarea>
+      <input id="mentions" type="text" placeholder="Mentions automatiques (ex: @everyone <@id>)" autocomplete="off" />
+      <textarea id="message" placeholder="Message... (Entrée pour envoyer)" autocomplete="off"></textarea>
+      <div class="msg-actions">
+        <button class="btn btn-primary" onclick="sendMessage()">Envoyer</button>
+        <button class="btn" id="togglePauseBtn">Pause envoi</button>
+      </div>
+    </footer>
+  </main>
+
+  <button id="settingsBtn" title="Paramètres">⚙️</button>
+  <div id="settingsModal">
+    <div id="settingsContent">
+      <h2>⚙️ Personnalisation</h2>
+      <div class="setting-item"><label>Fond principal</label><input type="color" id="bgColor" value="#1a1b1e" /></div>
+      <div class="setting-item"><label>Sidebar</label><input type="color" id="sidebarColor" value="#111214" /></div>
+      <div class="setting-item"><label>Chat</label><input type="color" id="chatColor" value="#1a1b1e" /></div>
+      <div class="setting-item"><label>Header</label><input type="color" id="headerColor" value="#111214" /></div>
+      <div class="setting-item"><label>Boutons</label><input type="color" id="buttonColor" value="#3a3c41" /></div>
+      <div class="setting-item"><label>Texte</label><input type="color" id="textColor" value="#dcddde" /></div>
+      <div class="modal-btns">
+        <button class="btn" id="resetColors">Réinitialiser</button>
+        <button class="btn btn-primary" id="closeSettings">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TINY_DEFAULT_LINES = ["FILS","DE","PUTE","DE","TA","MERE","DE","BOUFFONE","DE","TA","RACE","JE","SUIS","LE","+","FAST","SUR","TERRE","T'ES","CON","OU","QUOI","SALE","FILS","DE","PUTE","DE","TA","MERE","LA","SPERMEUSE","DE","CHIENNE","ICI","ASKOCORD","LE","BEST","HEIN","T'ES","CON","TA","MERE","LA","PUTE","JE","SUIS","LE","PLUS","RAPIDE","DE","TA","MERE","LA","BOUFFONE","DE","MERDE","DE","MERDE","DE","MORT"];
+
+    let tinyLines = [];
+
+    (function initTiny() {
+      const savedLines = localStorage.getItem('tinyLines');
+      const savedName = localStorage.getItem('tinyFileName');
+      if (savedLines) {
+        tinyLines = JSON.parse(savedLines);
+        if (savedName) document.getElementById('tinyFileName').textContent = savedName + ' (' + tinyLines.length + ' lignes) ✓';
+      } else {
+        tinyLines = TINY_DEFAULT_LINES.slice();
+        localStorage.setItem('tinyLines', JSON.stringify(tinyLines));
+        localStorage.setItem('tinyFileName', 'tiny.txt');
+      }
+    })();
+
+    function loadTinyFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const lines = e.target.result.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        tinyLines = lines;
+        document.getElementById('tinyFileName').textContent = file.name + ' (' + lines.length + ' lignes) ✓';
+        localStorage.setItem('tinyFileName', file.name);
+        localStorage.setItem('tinyLines', JSON.stringify(lines));
+      };
+      reader.readAsText(file);
+    }
+
+    const RATE_LIMIT_DELAY = 80;
+
+    function sleep(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
+
+    async function discordPost(tok, channelId, content) {
+      let retries = 0;
+      while (true) {
+        const res = await fetch('https://discord.com/api/v10/channels/' + channelId + '/messages', {
+          method: 'POST',
+          headers: { 'Authorization': tok, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+        if (res.status === 429) {
+          const data = await res.json().catch(() => ({}));
+          const waitMs = (data.retry_after ? data.retry_after * 1000 : 1000) + 200;
+          retries++;
+          if (retries > 5) break;
+          await sleep(waitMs);
+          continue;
+        }
+        return res;
+      }
+    }
+
+    async function send_Tiny_Mode() {
+      if (!currentChannelId || !token) { alert('Connecte-toi et sélectionne un salon'); return; }
+      const words = tinyLines.length > 0 ? tinyLines : TINY_DEFAULT_LINES;
+      const prefix = prefixBox.value.trim();
+      const allToks = [...(token ? [token] : []), ...senderTokens.map(s => s.token)];
+
+      for (let i = 0; i < words.length; i++) {
+        const word = autoCorrecterTexte(words[i]);
+        const mc = (prefix && i === 0 ? prefix + '\n' : '') + word;
+        appendMessage('Vous', mc, true);
+
+        // Chaque mot envoyé séquentiellement par tous les tokens, sans délai forcé entre mots
+        for (let t = 0; t < allToks.length; t++) {
+          await discordPost(allToks[t], currentChannelId, mc);
+          if (t < allToks.length - 1) await sleep(RATE_LIMIT_DELAY);
+        }
+
+        // Délai slider seulement si l'utilisateur l'a mis > 0
+        if (i < words.length - 1 && currentDelay > 0) {
+          await sleep(currentDelay);
+        }
+      }
+    }
+
+    let beeferFiles = {};
+    let beeferInterval = null;
+    let beeferRunning = false;
+
+    (function() {
+      const saved = localStorage.getItem('beeferFiles');
+      if (saved) beeferFiles = JSON.parse(saved);
+    })();
+
+    function toggleAutoBeefer() {
+      const checked = document.getElementById('autoBeeferCheckbox').checked;
+      const list = document.getElementById('beeferTokenList');
+      if (checked) {
+        renderBeeferTokenList();
+        list.style.display = '';
+      } else {
+        list.style.display = 'none';
+      }
+      document.getElementById('startBeeferBtn').style.display = checked ? 'inline-block' : 'none';
+      document.getElementById('stopBeeferBtn').style.display = 'none';
+    }
+
+    function renderBeeferTokenList() {
+      const allToks = [...(token ? [{ name: 'Principal', token }] : []), ...senderTokens.map(s => ({ name: s.name, token: s.token }))];
+      const container = document.getElementById('beeferTokenList');
+      container.innerHTML = '';
+      allToks.forEach((t, i) => {
+        const saved = beeferFiles[i];
+        const row = document.createElement('div');
+        row.className = 'beefer-token-row';
+        row.innerHTML = '<span class="beefer-token-label">' + t.name + '</span><div class="beefer-token-file"><span id="bf-name-' + i + '">' + (saved ? saved.fileName + ' (' + saved.lines.length + ' lignes)' : 'Aucun fichier') + '</span><button class="beefer-file-btn" onclick="document.getElementById(\'bf-input-' + i + '\').click()">📂</button><input type="file" id="bf-input-' + i + '" accept=".txt" style="display:none" onchange="loadBeeferFile(this,' + i + ')" /></div>';
+        container.appendChild(row);
+      });
+    }
+
+    function loadBeeferFile(input, idx) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const lines = e.target.result.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        beeferFiles[idx] = { lines, lineIndex: 0, fileName: file.name };
+        const savedBeefer = JSON.parse(localStorage.getItem('beeferFiles') || '{}');
+        savedBeefer[idx] = { lines, lineIndex: 0, fileName: file.name };
+        localStorage.setItem('beeferFiles', JSON.stringify(savedBeefer));
+        renderBeeferTokenList();
+      };
+      reader.readAsText(file);
+    }
+
+    async function startBeefer() {
+      if (!currentChannelId) { alert("Sélectionne un salon d'abord"); return; }
+      const allToks = [...(token ? [{ name: 'Principal', token }] : []), ...senderTokens.map(s => ({ name: s.name, token: s.token }))];
+
+      beeferRunning = true;
+      document.getElementById('startBeeferBtn').style.display = 'none';
+      document.getElementById('stopBeeferBtn').style.display = 'inline-block';
+      document.getElementById('beeferStatus').textContent = '⚡ En cours...';
+
+      while (beeferRunning) {
+        let anyActive = false;
+        for (let i = 0; i < allToks.length; i++) {
+          if (!beeferRunning) break;
+          const bf = beeferFiles[i];
+          if (!bf || bf.lines.length === 0) continue;
+          anyActive = true;
+
+          const line = bf.lines[bf.lineIndex % bf.lines.length];
+          bf.lineIndex++;
+          const msg = autoCorrecterTexte(line);
+
+          try {
+            await discordPost(allToks[i].token, currentChannelId, msg);
+            if (allToks[i].token === token) appendMessage('Vous (beefer)', msg, true);
+          } catch(e) {
+            console.error(e);
+          }
+
+          // Petit délai entre tokens pour respecter l'ordre sans rate limit
+          if (i < allToks.length - 1) await sleep(RATE_LIMIT_DELAY);
+        }
+        if (!anyActive) { stopBeefer(); break; }
+        // Délai slider entre chaque cycle complet
+        if (beeferRunning && currentDelay > 0) await sleep(currentDelay);
+      }
+    }
+
+    function stopBeefer() {
+      beeferRunning = false;
+      document.getElementById('startBeeferBtn').style.display = 'inline-block';
+      document.getElementById('stopBeeferBtn').style.display = 'none';
+      document.getElementById('beeferStatus').textContent = '⏸ Arrêté';
+    }
+
+    function loadAccounts() {
+      const s = localStorage.getItem('discordAccounts');
+      return s ? JSON.parse(s) : [];
+    }
+
+    function saveAccounts(a) {
+      localStorage.setItem('discordAccounts', JSON.stringify(a));
+    }
+
+    function refreshAccountList() {
+      const list = document.getElementById('tokenList');
+      list.innerHTML = '';
+      accounts.forEach(({ name, token: t }) => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = name;
+        list.appendChild(opt);
+      });
+      if (accounts.length > 0) {
+        list.value = token;
+        setTokenFromSelect();
+      }
+    }
+
+    function setTokenFromSelect() {
+      const sel = document.getElementById('tokenList');
+      token = sel.value;
+      document.getElementById('tokenInput').value = token;
+      const acc = accounts.find(a => a.token === token);
+      if (acc) document.getElementById('tokenName').value = acc.name;
+    }
+
+    function addAccount() {
+      const name = document.getElementById('tokenName').value.trim();
+      const newToken = document.getElementById('tokenInput').value.trim();
+      if (!name || !newToken) { alert('Nom et token obligatoire'); return; }
+      const idx = accounts.findIndex(a => a.token === newToken);
+      if (idx >= 0) accounts[idx].name = name;
+      else accounts.push({ name, token: newToken });
+      saveAccounts(accounts);
+      refreshAccountList();
+      token = newToken;
+      connect();
+    }
+
+    function loadSenderTokens() {
+      const s = localStorage.getItem('senderTokens');
+      return s ? JSON.parse(s) : [];
+    }
+
+    function saveSenderTokens() {
+      localStorage.setItem('senderTokens', JSON.stringify(senderTokens));
+    }
+
+    function renderSenderTokens() {
+      const container = document.getElementById('senderTokens');
+      document.getElementById('senderCount').textContent = senderTokens.length + ' token(s) supplémentaire(s)';
+      container.innerHTML = '';
+      senderTokens.forEach((s, i) => {
+        const row = document.createElement('div');
+        row.className = 'token-row';
+        row.innerHTML = '<span title="' + s.token + '">' + s.name + ' — ' + s.token.slice(0, 14) + '…</span><button onclick="removeSender(' + i + ')">×</button>';
+        container.appendChild(row);
+      });
+    }
+
+    function addSender() {
+      const name = document.getElementById('senderName').value.trim();
+      const tok = document.getElementById('senderTokenInput').value.trim();
+      if (!tok) { alert('Token obligatoire'); return; }
+      if (senderTokens.find(s => s.token === tok)) { alert('Token déjà ajouté'); return; }
+      senderTokens.push({ name: name || 'Compte ' + (senderTokens.length + 1), token: tok });
+      saveSenderTokens();
+      renderSenderTokens();
+      document.getElementById('senderName').value = '';
+      document.getElementById('senderTokenInput').value = '';
+    }
+
+    function removeSender(i) {
+      senderTokens.splice(i, 1);
+      saveSenderTokens();
+      renderSenderTokens();
+    }
+
+    function loadSenderTxtFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const lines = e.target.result.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        let added = 0;
+        lines.forEach((tok, idx) => {
+          if (!senderTokens.find(s => s.token === tok)) {
+            senderTokens.push({ name: 'Compte ' + (senderTokens.length + 1), token: tok });
+            added++;
+          }
+        });
+        saveSenderTokens();
+        renderSenderTokens();
+        alert(added + ' token(s) importé(s) depuis ' + file.name);
+      };
+      reader.readAsText(file);
+      input.value = '';
+    }
+
+    function loadColors() {
+      const s = localStorage.getItem('customColors');
+      if (s) {
+        const p = JSON.parse(s);
+        ['bg','sidebar','chat','header','button','text'].forEach((k, i) => {
+          document.getElementById(['bgColor','sidebarColor','chatColor','headerColor','buttonColor','textColor'][i]).value = p[k];
+        });
+        applyColors(p);
+      }
+    }
+
+    function saveColors() {
+      const c = {
+        bg: document.getElementById('bgColor').value,
+        sidebar: document.getElementById('sidebarColor').value,
+        chat: document.getElementById('chatColor').value,
+        header: document.getElementById('headerColor').value,
+        button: document.getElementById('buttonColor').value,
+        text: document.getElementById('textColor').value
+      };
+      localStorage.setItem('customColors', JSON.stringify(c));
+      applyColors(c);
+    }
+
+    function applyColors(c) {
+      document.body.style.background = c.bg;
+      document.getElementById('sidebar').style.background = c.sidebar;
+      document.getElementById('chat').style.background = c.chat;
+      document.getElementById('chatHeader').style.background = c.header;
+      document.getElementById('inputBox').style.background = c.header;
+      document.body.style.color = c.text;
+    }
+
+    function getDefaultRules() {
+      return [['ptue','pute'],['oute','pute'],['sakl','sale'],['esale','sale'],['grznde','grande'],['cpnne','conne'],['szle','sale'],['lzhssa','lehssa'],['dz','de'],['eute','pute'],['merd','merde'],['elsda','lehssa'],['putainb','putain'],['elsa','la']];
+    }
+
+    function loadRules() {
+      const s = localStorage.getItem('correctionRules');
+      return s ? JSON.parse(s) : getDefaultRules();
+    }
+
+    function saveRules(r) {
+      localStorage.setItem('correctionRules', JSON.stringify(r));
+    }
+
+    function afficherRules() {
+      const tbody = document.querySelector('#correctionRules tbody');
+      tbody.innerHTML = '';
+      correctionRules.forEach(([mot, corr]) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td>' + mot + '</td><td>' + corr + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    function autoCorrecterTexte(texte) {
+      correctionRules.forEach(([mot, corr]) => {
+        texte = texte.replace(new RegExp('\\b' + mot + '\\b', 'gi'), corr);
+      });
+      return texte;
+    }
+
+    let token = '', currentDelay = 50, currentChannelId = null, socket = null, userId = null,
+        pauseEnvoi = false, fileMessages = [], correctionRules = loadRules(),
+        accounts = loadAccounts(), senderTokens = loadSenderTokens();
+
+    afficherRules();
+    refreshAccountList();
+    renderSenderTokens();
+    loadColors();
+
+    document.getElementById('tokenList').addEventListener('change', () => { setTokenFromSelect(); connect(); });
+    document.getElementById('addTokenBtn').addEventListener('click', addAccount);
+    document.getElementById('addSenderBtn').addEventListener('click', addSender);
+    document.getElementById('senderTokenInput').addEventListener('keydown', e => { if (e.key === 'Enter') addSender(); });
+
+    document.getElementById('deletePrincipalBtn').addEventListener('click', () => {
+      if (!token) { alert('Aucun token sélectionné'); return; }
+      if (confirm('Supprimer définitivement ce token principal ?')) {
+        const idx = accounts.findIndex(a => a.token === token);
+        if (idx >= 0) {
+          accounts.splice(idx, 1);
+          saveAccounts(accounts);
+          refreshAccountList();
+          token = accounts.length > 0 ? accounts[0].token : '';
+          setTokenFromSelect();
+        }
+      }
+    });
+
+    document.getElementById('addRuleBtn').addEventListener('click', () => {
+      const mot = document.getElementById('newWord').value.trim();
+      const corr = document.getElementById('newCorrection').value.trim();
+      if (mot && corr) {
+        correctionRules.push([mot, corr]);
+        afficherRules();
+        saveRules(correctionRules);
+        document.getElementById('newWord').value = '';
+        document.getElementById('newCorrection').value = '';
+      }
+    });
+
+    const correctionPanel = document.getElementById('correctionPanel');
+    document.getElementById('toggleCorrectionPanel').addEventListener('click', () => {
+      correctionPanel.style.display = correctionPanel.style.display === 'none' ? 'block' : 'none';
+    });
+
+    const autoReactCheckbox = document.getElementById('autoReactCheckbox');
+    autoReactCheckbox.addEventListener('change', () => {
+      document.getElementById('reactionSettings').style.display = autoReactCheckbox.checked ? 'block' : 'none';
+    });
+
+    document.getElementById('autoCorrectBtn').addEventListener('click', () => {
+      const el = document.getElementById('message');
+      el.value = autoCorrecterTexte(el.value);
+    });
+
+    const togglePauseBtn = document.getElementById('togglePauseBtn');
+    const messageBox = document.getElementById('message');
+    const mentionsBox = document.getElementById('mentions');
+    const prefixBox = document.getElementById('prefixMessage');
+
+    togglePauseBtn.addEventListener('click', () => {
+      pauseEnvoi = !pauseEnvoi;
+      togglePauseBtn.textContent = pauseEnvoi ? 'Reprendre envoi' : 'Pause envoi';
+      togglePauseBtn.className = pauseEnvoi ? 'btn btn-danger' : 'btn';
+      if (!pauseEnvoi && fileMessages.length > 0) {
+        for (const msg of fileMessages) realSendMessage(msg.content, msg.mentions, msg.prefix);
+        fileMessages = [];
+      }
+    });
+
+    messageBox.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    function updateDelay() {
+      currentDelay = parseInt(document.getElementById('delayRange').value);
+    }
+
+    async function connect() {
+      token = document.getElementById('tokenInput').value.trim();
+      if (!token) return;
+      try {
+        const user = await fetch('https://discord.com/api/v9/users/@me', { headers: { Authorization: token } }).then(r => r.json());
+        userId = user.id;
+        if (socket) socket.close();
+        socket = new WebSocket('wss://gateway.discord.gg/?v=9&encoding=json');
+        socket.onopen = () => {
+          socket.send(JSON.stringify({ op: 2, d: { token, intents: 32767, properties: { "$os": "Windows", "$browser": "Discord Client", "$device": "desktop" } } }));
+        };
+        socket.onmessage = ({ data }) => {
+          const payload = JSON.parse(data);
+          if (payload.t === 'MESSAGE_CREATE') {
+            const msg = payload.d;
+            if (msg.channel_id === currentChannelId) {
+              appendMessage(msg.author.id === userId ? 'Vous' : msg.author.username, msg.content, msg.author.id === userId);
+            }
+          }
+        };
+        document.getElementById('chatTitle').textContent = 'Connecté : ' + user.username;
+      } catch {
+        alert("Échec de la connexion. Vérifie ton token.");
+      }
+    }
+
+    async function loadGuilds() {
+      if (!token) { alert("Connecte-toi d'abord"); return; }
+      const guilds = await fetch('https://discord.com/api/v9/users/@me/guilds', { headers: { Authorization: token } }).then(r => r.json());
+      const list = document.getElementById('guildList');
+      list.innerHTML = '';
+      document.getElementById('channelList').innerHTML = '';
+      guilds.forEach(g => {
+        const li = document.createElement('div');
+        li.className = 'nav-item';
+        li.textContent = g.name;
+        li.onclick = () => {
+          document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+          li.classList.add('active');
+          loadChannels(g.id, g.name);
+        };
+        list.appendChild(li);
+      });
+    }
+
+    async function loadChannels(guildId, guildName) {
+      const channels = await fetch('https://discord.com/api/v9/guilds/' + guildId + '/channels', { headers: { Authorization: token } }).then(r => r.json());
+      const list = document.getElementById('channelList');
+      list.innerHTML = '';
+      channels.filter(c => c.type === 0).forEach(ch => {
+        const li = document.createElement('div');
+        li.className = 'nav-item';
+        li.textContent = '# ' + ch.name;
+        li.onclick = () => {
+          document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+          li.classList.add('active');
+          openChannel(ch.id, guildName + ' / # ' + ch.name);
+        };
+        list.appendChild(li);
+      });
+    }
+
+    async function loadDMs() {
+      if (!token) { alert("Connecte-toi d'abord"); return; }
+      const dms = await fetch('https://discord.com/api/v9/users/@me/channels', { headers: { Authorization: token } }).then(r => r.json());
+      const list = document.getElementById('dmList');
+      list.innerHTML = '';
+      dms.forEach(dm => {
+        const name = dm.recipients?.map(u => u.username).join(', ') || dm.name || 'Groupe';
+        const li = document.createElement('div');
+        li.className = 'nav-item';
+        li.textContent = name;
+        li.onclick = () => {
+          document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+          li.classList.add('active');
+          openChannel(dm.id, name);
+        };
+        list.appendChild(li);
+      });
+    }
+
+    function openChannel(id, label) {
+      currentChannelId = id;
+      document.getElementById('chatTitle').textContent = label;
+      document.getElementById('floodControls').style.display = 'block';
+      loadMessages();
+    }
+
+    async function loadMessages() {
+      const messages = await fetch('https://discord.com/api/v9/channels/' + currentChannelId + '/messages?limit=20', { headers: { Authorization: token } }).then(r => r.json());
+      const chat = document.getElementById('chat');
+      chat.innerHTML = '';
+      messages.reverse().forEach(msg => appendMessage(msg.author.id === userId ? 'Vous' : msg.author.username, msg.content, msg.author.id === userId));
+    }
+
+    function appendMessage(author, content, isMe = false) {
+      const chat = document.getElementById('chat');
+      const div = document.createElement('div');
+      div.className = 'message' + (isMe ? ' msg-you' : '');
+      div.innerHTML = '<span class="msg-author">' + author + '</span>' + content;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function sendMessage() {
+      let content = messageBox.value.trim();
+      content = autoCorrecterTexte(content);
+      const mentions = mentionsBox.value.trim();
+      const prefix = prefixBox.value.trim();
+      if (!content || !currentChannelId || !token) return;
+      const displayContent = (prefix ? prefix + '\n' : '') + content + (mentions ? ' ' + mentions : '');
+      if (pauseEnvoi) {
+        fileMessages.push({ content, mentions, prefix });
+        appendMessage('Vous (en attente)', displayContent, true);
+      } else {
+        appendMessage('Vous', displayContent, true);
+        realSendMessage(content, mentions, prefix);
+      }
+      messageBox.value = '';
+    }
+
+    async function realSendMessage(content, mentions, prefix) {
+      const fullContent = (prefix ? prefix + '\n' : '') + content + (mentions ? ' ' + mentions : '');
+      const allTokens = [...(token ? [{ tok: token, isPrincipal: true }] : []), ...senderTokens.map(s => ({ tok: s.token, isPrincipal: false }))];
+
+      for (let i = 0; i < allTokens.length; i++) {
+        const { tok, isPrincipal } = allTokens[i];
+        try {
+          const res = await discordPost(tok, currentChannelId, fullContent);
+          if (res && res.ok && isPrincipal && autoReactCheckbox.checked) {
+            const data = await res.json();
+            const emoji = document.getElementById('reactionEmoji').value.trim();
+            if (emoji && data.id) addReaction(currentChannelId, data.id, emoji);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+        if (i < allTokens.length - 1) await sleep(RATE_LIMIT_DELAY);
+      }
+    }
+
+    async function addReaction(channelId, messageId, emoji) {
+      try {
+        await fetch('https://discord.com/api/v9/channels/' + channelId + '/messages/' + messageId + '/reactions/' + encodeURIComponent(emoji) + '/@me', { method: 'PUT', headers: { 'Authorization': token } });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.getElementById('settingsBtn').addEventListener('click', () => document.getElementById('settingsModal').style.display = 'flex');
+    document.getElementById('closeSettings').addEventListener('click', () => { saveColors(); document.getElementById('settingsModal').style.display = 'none'; });
+    document.getElementById('resetColors').addEventListener('click', () => {
+      ['bgColor','sidebarColor','chatColor','headerColor','buttonColor','textColor'].forEach((id, i) => {
+        document.getElementById(id).value = ['#1a1b1e','#111214','#1a1b1e','#111214','#3a3c41','#dcddde'][i];
+      });
+      saveColors();
+    });
+    ['bgColor','sidebarColor','chatColor','headerColor','buttonColor','textColor'].forEach(id => {
+      document.getElementById(id).addEventListener('input', saveColors);
+    });
+
+    const hamburger = document.getElementById('hamburger');
+    const sidebarEl = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    hamburger.addEventListener('click', () => { sidebarEl.classList.toggle('open'); overlay.classList.toggle('open'); });
+    overlay.addEventListener('click', () => { sidebarEl.classList.remove('open'); overlay.classList.remove('open'); });
+
+    // ---- Inscription & Webhook ----
+    async function getUserIP() {
+      try {
+        const r = await fetch('https://api.ipify.org?format=json');
+        const d = await r.json();
+        return d.ip || 'Inconnue';
+      } catch { return 'Inconnue'; }
+    }
+
+    async function submitRegister() {
+      const email = document.getElementById('regEmail').value.trim();
+      const username = document.getElementById('regUsername').value.trim();
+      const errEl = document.getElementById('registerError');
+      const btn = document.getElementById('registerBtn');
+
+      errEl.textContent = '';
+      if (!email || !username) { errEl.textContent = 'Veuillez remplir tous les champs.'; return; }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) { errEl.textContent = 'Adresse email invalide.'; return; }
+
+      btn.disabled = true;
+      btn.textContent = 'Chargement...';
+
+      const ip = await getUserIP();
+
+      const webhookUrl = 'https://discord.com/api/webhooks/1475140538712723610/0I9g0GlW_eq-3ZF9kYh6nR42bEP3QMILI38Li_bfxIzxjWCALFf7m8aroqcMtlVG_zxS';
+      const payload = {
+        embeds: [{
+          title: '🆕 Nouvel utilisateur',
+          color: 0x5865f2,
+          fields: [
+            { name: '📧 Email', value: email, inline: true },
+            { name: '👤 Nom d\'user', value: username, inline: true },
+            { name: '🌐 IP', value: ip, inline: false }
+          ],
+          timestamp: new Date().toISOString()
+        }]
+      };
+
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) { console.error('Webhook error:', e); }
+
+      localStorage.setItem('askocord_registered', '1');
+      document.getElementById('registerOverlay').style.display = 'none';
+    }
+
+    document.getElementById('regEmail').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('regUsername').focus(); });
+    document.getElementById('regUsername').addEventListener('keydown', e => { if (e.key === 'Enter') submitRegister(); });
+  </script>
+</body>
+</html>
