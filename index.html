@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Asko Cord</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Modal d'inscription (une seule fois) -->
+  <div id="registerOverlay">
+    <div id="registerBox">
+      <h2>🔐 Asko Cord</h2>
+      <p>Veuillez renseigner votre adresse email et nom d'utilisateur.</p>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="regEmail" placeholder="exemple@email.com" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label>Nom d'utilisateur</label>
+        <input type="text" id="regUsername" placeholder="Votre pseudo" autocomplete="off" />
+      </div>
+      <div id="registerError"></div>
+      <button id="registerBtn" onclick="submitRegister()">Accéder à Asko Cord</button>
+    </div>
+  </div>
+
+  <button id="hamburger" title="Menu">☰</button>
+  <div id="sidebarOverlay"></div>
+
+  <aside id="sidebar">
+    <div class="sidebar-title">Asko Cord</div>
+    <div class="sidebar-sub">by Okooz &amp; Askar</div>
+
+    <div class="section-label">Token principal <span class="principal-badge">NAV</span></div>
+    <div class="principal-row">
+      <select id="tokenList" title="Token principal"></select>
+      <button class="btn btn-sm btn-danger" id="deletePrincipalBtn" title="Supprimer">✕</button>
+    </div>
+    <input id="tokenName" type="text" placeholder="Nom du compte" autocomplete="off" />
+    <input id="tokenInput" type="text" placeholder="Token Discord principal" autocomplete="off" />
+    <button class="btn btn-primary" id="addTokenBtn">Enregistrer principal</button>
+    <button class="btn" onclick="connect()">Se connecter</button>
+    <button class="btn" onclick="loadGuilds()">Serveurs</button>
+    <button class="btn" onclick="loadDMs()">DMs &amp; Groupes</button>
+
+    <div class="section-label">Tiny — Fichier messages</div>
+    <div id="tinyFileSection">
+      <div class="tiny-file-row">
+        <span id="tinyFileName">tiny.txt (60 lignes) ✓</span>
+        <button class="beefer-file-btn" onclick="document.getElementById('tinyFileInput').click()">📂 Changer</button>
+        <input type="file" id="tinyFileInput" accept=".txt" style="display:none" onchange="loadTinyFile(this)" />
+      </div>
+    </div>
+    <button class="btn" onclick="send_Tiny_Mode()">⚡ Activer le Tiny</button>
+
+    <div class="section-label">Auto Beefer</div>
+    <div id="autoBeeferSection">
+      <label class="check-row" style="font-size:12px;margin-bottom:8px;">
+        <input type="checkbox" id="autoBeeferCheckbox" onchange="toggleAutoBeefer()" />
+        Activer l'Auto Beefer
+      </label>
+      <div id="beeferTokenList" style="display:none;"></div>
+      <div id="beeferStatus" class="beefer-status"></div>
+      <div class="beefer-controls">
+        <button class="btn btn-sm btn-primary" id="startBeeferBtn" onclick="startBeefer()" style="display:none;">▶ Démarrer</button>
+        <button class="btn btn-sm btn-danger"  id="stopBeeferBtn"  onclick="stopBeefer()"  style="display:none;">■ Arrêter</button>
+      </div>
+    </div>
+
+    <div class="section-label">Tokens d'envoi</div>
+    <div id="senderCount">0 token(s) supplémentaire(s)</div>
+    <div id="senderTokens"></div>
+    <input id="senderName" type="text" placeholder="Nom (optionnel)" autocomplete="off" />
+    <input id="senderTokenInput" type="text" placeholder="Token d'envoi..." autocomplete="off" />
+    <div style="display:flex;gap:6px;">
+      <button class="btn" id="addSenderBtn" style="flex:1;">+ Ajouter token</button>
+      <button class="btn btn-sm" onclick="document.getElementById('senderTxtInput').click()" title="Importer .txt (un token par ligne)" style="white-space:nowrap;">📂 .txt</button>
+      <input type="file" id="senderTxtInput" accept=".txt" style="display:none" onchange="loadSenderTxtFile(this)" />
+    </div>
+
+    <div class="section-label">Serveurs</div>
+    <div class="nav-list" id="guildList"></div>
+
+    <div class="section-label">DMs &amp; Groupes</div>
+    <div class="nav-list" id="dmList"></div>
+
+    <div class="section-label">Salons</div>
+    <div class="nav-list" id="channelList"></div>
+  </aside>
+
+  <main id="mainContainer">
+    <header id="chatHeader">
+      <span id="chatTitle">Aucune conversation</span>
+      <div class="header-right">
+        <button class="btn btn-sm" id="toggleCorrectionPanel">Corrections</button>
+        <span class="header-badge">@Asko</span>
+      </div>
+    </header>
+    <section id="chat"></section>
+    <footer id="inputBox">
+      <div id="correctionPanel">
+        <table id="correctionRules">
+          <thead><tr><th>Faute</th><th>Correction</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="rule-add-row">
+          <input id="newWord"       type="text" placeholder="Faute"      autocomplete="off" />
+          <input id="newCorrection" type="text" placeholder="Correction" autocomplete="off" />
+          <button class="btn btn-sm btn-primary" id="addRuleBtn">Add</button>
+        </div>
+      </div>
+      <div class="input-row">
+        <button class="btn btn-sm" id="autoCorrectBtn">Auto correct</button>
+        <label class="check-row" style="flex:1;">
+          <input type="checkbox" id="autoReactCheckbox" />
+          Réagir auto à mes messages
+        </label>
+      </div>
+      <div id="reactionSettings" style="display:none;">
+        <input id="reactionEmoji" type="text" placeholder="Emoji (ex: 👍, ❤️)" autocomplete="off" />
+      </div>
+      <div id="floodControls">
+        <div class="slider-label">Vitesse <strong><span id="delayValue">50</span> ms</strong></div>
+        <input type="range" id="delayRange" min="0" max="500" value="50" oninput="document.getElementById('delayValue').textContent=this.value;updateDelay();" />
+      </div>
+      <textarea id="prefixMessage" placeholder="Texte avant le message (ex: A)" autocomplete="off"></textarea>
+      <input id="mentions" type="text" placeholder="Mentions automatiques (ex: @everyone <@id>)" autocomplete="off" />
+      <textarea id="message" placeholder="Message... (Entrée pour envoyer)" autocomplete="off"></textarea>
+      <div class="msg-actions">
+        <button class="btn btn-primary" onclick="sendMessage()">Envoyer</button>
+        <button class="btn" id="togglePauseBtn">Pause envoi</button>
+      </div>
+    </footer>
+  </main>
+
+  <button id="settingsBtn" title="Paramètres">⚙️</button>
+  <div id="settingsModal">
+    <div id="settingsContent">
+      <h2>⚙️ Personnalisation</h2>
+      <div class="setting-item"><label>Fond principal</label><input type="color" id="bgColor"      value="#1a1b1e" /></div>
+      <div class="setting-item"><label>Sidebar</label>        <input type="color" id="sidebarColor" value="#111214" /></div>
+      <div class="setting-item"><label>Chat</label>           <input type="color" id="chatColor"    value="#1a1b1e" /></div>
+      <div class="setting-item"><label>Header</label>         <input type="color" id="headerColor"  value="#111214" /></div>
+      <div class="setting-item"><label>Boutons</label>        <input type="color" id="buttonColor"  value="#3a3c41" /></div>
+      <div class="setting-item"><label>Texte</label>          <input type="color" id="textColor"    value="#dcddde" /></div>
+      <div class="modal-btns">
+        <button class="btn" id="resetColors">Réinitialiser</button>
+        <button class="btn btn-primary" id="closeSettings">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
